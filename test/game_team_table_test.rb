@@ -15,33 +15,8 @@ class GameTeamTableTest < Minitest::Test
     @game_table = GameTeamTable.new(locations, stat_tracker)
   end
 
-  def test_winningest_coach
-    assert_equal "Claude Julien", @game_table.winningest_coach("20132014")
-    assert_equal "Alain Vigneault", @game_table.winningest_coach("20142015")
-  end
+  def test_average_win_percentage
 
-  def test_worst_coach
-    assert_equal "Peter Laviolette", @game_table.worst_coach("20132014")
-    assert_equal "Craig MacTavish" || "Ted Nolan", @game_table.worst_coach("20142015")
+    assert_equal 0.49, @game_table.average_win_percentage("6")
   end
-
-  def test_most_accurate_team
-    assert_equal "Real Salt Lake", @game_table.most_accurate_team("20132014")
-    assert_equal "Toronto FC", @game_table.most_accurate_team("20142015")
-  end
-
-  def test_least_accurate_team
-    assert_equal "New York City FC", @game_table.least_accurate_team("20132014")
-    assert_equal "Columbus Crew SC", @game_table.least_accurate_team("20142015")
-  end
-
-  def test_most_tackles
-    assert_equal "FC Cincinnati", @game_table.most_tackles("20132014")
-    assert_equal "Seattle Sounders FC", @game_table..most_tackles("20142015")
-  end
-
-  def test_fewest_tackles
-    assert_equal "Atlanta United", @game_table.fewest_tackles("20132014")
-    assert_equal "Orlando City SC", @game_table.fewest_tackles("20142015")
-  end
-end   
+end

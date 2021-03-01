@@ -4,7 +4,7 @@ require_relative '../tables/game_team_tables'
 class GameTeam
   attr_reader :game_id,
   :team_id,
-  :HoA,
+  :hoa,
   :result,
   :settled_in,
   :head_coach,
@@ -21,7 +21,7 @@ class GameTeam
     #data
     @game_id = data[:game_id]
     @team_id = data[:team_id]
-    @HoA = data[:HoA]
+    @hoa = data[:hoa]
     @result = data[:result]
     @settled_in = data[:settled_in]
     @head_coach = data[:head_coach]

@@ -23,9 +23,16 @@ class GameTeamTable
       (win_percent.to_f / total_games).round(2)
   end
 
+  def best_season(team_id)
+    array = []
+    hash = Hash.new()
+    @game_team_data.find_all{|game| game.team_id == team_id}.map{|game| array << [game.game_id, game.result]}
+    array = array.group_by{|line| line[0].to_s.split('')[0..3].join}
+    array.map{|season| hash[season[0]] = season[1].find_all{|game| game[1] == 'WIN'}.length.to_f / season[1].length}
+    hash.max_by {|team| team[1]}[0]
+  end
 
-
-
-
-
+  def fewest_goals_scored(team_id_str)
+    @game_team_data.find_all{|game| game.team_id == team_id_str.to_i}.min_by{|game| game.goals}.goals
+  end
 end

@@ -9,7 +9,7 @@ require './lib/helper_modules/csv_to_hashable'
 class GameTableTest < Minitest::Test
 include CsvToHash
   def setup
-    stat_tracker = nil
+    stat_tracker = StatTracker.new
     locations = './data/games.csv'
     @game_table = GameTable.new(locations, stat_tracker)
   end

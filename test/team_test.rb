@@ -9,8 +9,9 @@ require './lib/tables/game_team_tables'
 class TeamTest < Minitest::Test
 
   def setup
+    stat_tracker= StatTracker.new
     @teams = TeamsTable.new('./data/teams.csv')
-    @game_teams = GameTeamTable.new('./data/game_teams.csv')
+    @game_teams = GameTeamTable.new('./data/game_teams.csv',stat_tracker)
   end
 
   def test_number_of_teams

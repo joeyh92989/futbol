@@ -17,8 +17,8 @@ class GameTeamTable
   end
 
   def winningest_coach(season)
-    games_by_season = games_by_season(season)
-    winning_coach_hash = games_by_season.group_by do |game|
+    games_by_season_array = games_by_season(season)
+    winning_coach_hash = games_by_season_array.group_by do |game|
        game.head_coach if game.result == "WIN"
     end
     win_count = winning_coach_hash.each { |k, v| winning_coach_hash[k] = v.count}.reject{|coach| coach == nil}
@@ -26,8 +26,8 @@ class GameTeamTable
   end
 
   def worst_coach(season)
-    games_by_season = games_by_season(season)
-    winning_coach_hash = games_by_season.group_by do |game|
+    games_by_season_array = games_by_season(season)
+    winning_coach_hash = games_by_season_array.group_by do |game|
        game.head_coach if game.result == "LOSS"
       end
     win_count = winning_coach_hash.each { |k, v| winning_coach_hash[k] = v.count}.reject{|coach| coach == nil}
@@ -35,8 +35,8 @@ class GameTeamTable
   end
 
   def most_accurate_team(season)
-    games_by_season = games_by_season(season)
-    games_by_team_id_hash = games_by_season.group_by {|game| game.team_id}
+    games_by_season_array = games_by_season(season)
+    games_by_team_id_hash = games_by_season_array.group_by {|game| game.team_id}
     ratio_of_g_to_s = games_by_team_id_hash.each do |team, ratio|
       games_by_team_id_hash[team] = ratio.map do |array|
         (array.goals.to_f / array.shots.to_f).round(2)
@@ -45,12 +45,12 @@ class GameTeamTable
     r1 = ratio_of_g_to_s.max_by do |team_id, ratio|
       ratio.sum
     end
-     r1[0]
+     return_team(r1[0], @stat_tracker.teams.team_data).teamname
   end
 
   def least_accurate_team(season)
-    games_by_season = games_by_season(season)
-    games_by_team_id_hash = games_by_season.group_by {|game| game.team_id}
+    games_by_season_array = games_by_season(season)
+    games_by_team_id_hash = games_by_season_array.group_by {|game| game.team_id}
     ratio_of_g_to_s = games_by_team_id_hash.each do |team, ratio|
       games_by_team_id_hash[team] = ratio.map do |array|
         (array.goals.to_f / array.shots.to_f).round(2)
@@ -59,12 +59,12 @@ class GameTeamTable
     r1 = ratio_of_g_to_s.min_by do |team_id, ratio|
       ratio.sum
     end
-    r1[0]
+    return_team(r1[0], @stat_tracker.teams.team_data).teamname
   end
 
   def most_tackles(season)
-    games_by_season = games_by_season(season)
-    games_by_team_id_hash = games_by_season.group_by {|game| game.team_id}
+    games_by_season_array = games_by_season(season)
+    games_by_team_id_hash = games_by_season_array.group_by {|game| game.team_id}
     container = games_by_team_id_hash.each do |team, games|
       games_by_team_id_hash[team] = games.sum do |lul|
         lul.tackles
@@ -73,12 +73,12 @@ class GameTeamTable
     thereturn = container.max_by do |team_id, tackle|
       tackle
     end
-    thereturn[0]
+    return_team(thereturn[0], @stat_tracker.teams.team_data).teamname
   end
 
   def fewest_tackles(season)
-    games_by_season = games_by_season(season)
-    games_by_team_id_hash = games_by_season.group_by {|game| game.team_id}
+    games_by_season_array = games_by_season(season)
+    games_by_team_id_hash = games_by_season_array.group_by {|game| game.team_id}
     container = games_by_team_id_hash.each do |team, games|
       games_by_team_id_hash[team] = games.sum do |lul|
         lul.tackles
@@ -87,22 +87,22 @@ class GameTeamTable
     thereturn = container.min_by do |team_id, tackle|
       tackle
     end
-    thereturn[0]
+    return_team(thereturn[0], @stat_tracker.teams.team_data).teamname
   end
 
-  def game_by_season
-    season = @game_data.group_by do |game|
-      game.season
-    end
-  end
-  def games_by_season(season)
-    season = @stat_tracker.game_by_season[season.to_i].map do |season|
-      season.game_id
+  # def game_by_season(season)
+  #   season = @game_data.group_by do |game|
+  #     game.season
+  #   end
+  # end
+  def games_by_season(arg)
+    seasons = @stat_tracker.game_by_season[(arg.to_i)].map do |season_games|
+      season_games.game_id
     end
     ids = @game_team_data.map do |gameteam|
       gameteam.game_id
     end
-    overlap = season & ids
+    overlap = seasons & ids
   end
 
   def worst_offense
@@ -110,20 +110,20 @@ class GameTeamTable
     #groups games by team_id, then adds the team_id as key to goal_hash with average goals per game as value
     @game_team_data.group_by{|game| game.team_id}.map {|team| hash[team[0]] = team[1].map{|game| game.goals}.sum.to_f / team[1].length}
     #finds the minimum score, return the team_id of team with min score
-    return_team(hash.min_by {|team| team[1]}[0]).teamname
+    return_team(hash.min_by {|team| team[1]}[0], @stat_tracker.teams.team_data).teamname
   end
 
   def highest_scoring_home_team
     hash = Hash.new
     #finds all home games, groups them by team, takes the
     @game_team_data.find_all {|game| game.hoa == 'home' }.group_by{|game| game.team_id}.map{|team| hash[team[0]] = team[1].map{|game| game.goals}.sum.to_f / team[1].length}
-    return_team(hash.max_by {|team| team[1]}[0]).teamname
+    return_team(hash.max_by {|team| team[1]}[0], @stat_tracker.teams.team_data).teamname
   end
   def lowest_scoring_home_team
     hash = Hash.new
     #finds all home games, groups them by team, takes the
     @game_team_data.find_all {|game| game.hoa == 'home' }.group_by{|game| game.team_id}.map{|team| hash[team[0]] = team[1].map{|game| game.goals}.sum.to_f / team[1].length}
-    return_team(hash.min_by {|team| team[1]}[0]).teamname
+    return_team(hash.min_by {|team| team[1]}[0],@stat_tracker.teams.team_data).teamname
   end
   def worst_season(team_id)
     array = []
@@ -147,19 +147,19 @@ class GameTeamTable
   def best_offense
     best_offense_hash = Hash.new
     @game_team_data.group_by{|game| game.team_id}.map {|team| best_offense_hash[team[0]] = team[1].map{|game| game.goals}.sum.to_f / team[1].length}
-    return_team(best_offense_hash.max_by {|team| team[1]}[0]).teamname
+    return_team(best_offense_hash.max_by {|team| team[1]}[0], @stat_tracker.teams.team_data).teamname
   end
 
   def highest_scoring_visitor
     visitor_hash = Hash.new
     @game_team_data.find_all {|game| game.hoa == 'away' }.group_by{|game| game.team_id}.map{|team| visitor_hash[team[0]] = team[1].map{|game| game.goals}.sum.to_f / team[1].length}
-    return_team(visitor_hash.max_by {|team| team[1]}[0]).teamname
+    return_team(visitor_hash.max_by {|team| team[1]}[0], @stat_tracker.teams.team_data).teamname
   end
 
   def lowest_scoring_visitor
     lowest_vis_hash = Hash.new
     @game_team_data.find_all {|game| game.hoa == 'away' }.group_by{|game| game.team_id}.map{|team| lowest_vis_hash[team[0]] = team[1].map{|game| game.goals}.sum.to_f / team[1].length}
-    return_team(lowest_vis_hash.min_by {|team| team[1]}[0]).teamname
+    return_team(lowest_vis_hash.min_by {|team| team[1]}[0], @stat_tracker.teams.team_data).teamname
   end
 
   def average_win_percentage(team_id)

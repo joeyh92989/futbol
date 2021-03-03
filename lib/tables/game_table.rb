@@ -3,7 +3,7 @@ require_relative '../instances/game'
 class GameTable
   attr_reader :game_data, :stat_tracker
   include CsvToHash
-  def initialize(locations)
+  def initialize(locations, stat_tracker)
     @game_data = from_csv(locations, 'Game')
     @stat_tracker = stat_tracker
   end

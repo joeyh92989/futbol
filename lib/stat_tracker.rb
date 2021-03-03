@@ -6,7 +6,7 @@ class StatTracker
   attr_reader :games, :game_teams, :teams
   def initialize
     
-    @games = GameTable.new('./data/games.csv')
+    @games = GameTable.new('./data/games.csv', self)
     @game_teams = GameTeamTable.new('./data/game_teams.csv', self)
     @teams = TeamsTable.new('./data/teams.csv')
   end
@@ -60,19 +60,19 @@ class StatTracker
   end
 
   def most_accurate_team(season)
-    return_team(@game_teams.most_accurate_team(season), @teams.team_data).teamname
+   @game_teams.most_accurate_team(season)
   end
 
   def least_accurate_team(season)
-    return_team(@game_teams.least_accurate_team(season), @teams.team_data).teamname
+    @game_teams.least_accurate_team(season)
   end
 
   def most_tackles(seasson)
-    return_team(@game_teams.most_tackles(season), @teams.team_data).teamname
+    @game_teams.most_tackles(season)
   end
 
   def fewest_tackles(season)
-    return_team(@game_teams.fewest_tackles(season), @teams.team_data).teamname
+    @game_teams.fewest_tackles(season)
   end
 
   def games_by_season(season)
@@ -115,9 +115,9 @@ class StatTracker
     @games.favorite_opponent(games)
   end
 
-  def game_by_season(season)
-    @game_teams.game_by_season(season)
-  end
+  # def game_by_season(season)
+  #   @game_teams.game_by_season(season)
+  # end
 
   def best_offense
     @game_teams.best_offense

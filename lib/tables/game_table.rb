@@ -1,4 +1,5 @@
 require_relative '../helper_modules/csv_to_hashable'
+
 require_relative '../instances/game'
 class GameTable
   attr_reader :game_data, :stat_tracker

@@ -4,15 +4,15 @@ require_relative './helper_modules/team_returnable'
 class StatTracker
   include ReturnTeamable
   attr_reader :games, :game_teams, :teams
-  def initialize
-    
-    @games = GameTable.new('./data/games.csv')
-    @game_teams = GameTeamTable.new('./data/game_teams.csv', self)
-    @teams = TeamsTable.new('./data/teams.csv')
+  
+  def initialize(locations)
+    @games = GameTable.new(locations[:games])
+    @game_teams = GameTeamTable.new(locations[:game_teams])
+    @teams = TeamsTable.new(locations[:teams])
   end
 
   def self.from_csv(locations)
-    StatTracker.new(locations)
+    self.new(locations)
   end
 
   def game_by_season

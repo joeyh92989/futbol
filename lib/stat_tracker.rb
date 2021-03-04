@@ -1,10 +1,13 @@
 require 'csv'
 require_relative './helper_modules/team_returnable'
+require '../futbol/lib/tables/team_table'
+require '../futbol/lib/tables/game_table'
+require '../futbol/lib/tables/game_team_tables'
 
 class StatTracker
   include ReturnTeamable
   attr_reader :games, :game_teams, :teams
-  
+
   def initialize(locations)
     @games = GameTable.new(locations[:games])
     @game_teams = GameTeamTable.new(locations[:game_teams])
@@ -51,7 +54,7 @@ class StatTracker
     @games.average_goals_by_season
   end
 
-  def winningest_coach
+  def winningest_coach(season)
     @game_teams.winningest_coach(season)
   end
 
@@ -60,19 +63,20 @@ class StatTracker
   end
 
   def most_accurate_team(season)
-    return_team(@game_teams.most_accurate_team(season), @teams.team_data).teamname
+    return_team(@game_teams.most_accurate_team(season), @teams.team_data).team_name
   end
 
   def least_accurate_team(season)
-    return_team(@game_teams.least_accurate_team(season), @teams.team_data).teamname
+    return_team(@game_teams.least_accurate_team(season), @teams.team_data).team_name
   end
 
-  def most_tackles(seasson)
-    return_team(@game_teams.most_tackles(season), @teams.team_data).teamname
+
+  def most_tackles(season)
+    return_team(@game_teams.most_tackles(season), @teams.team_data).team_name
   end
 
   def fewest_tackles(season)
-    return_team(@game_teams.fewest_tackles(season), @teams.team_data).teamname
+    return_team(@game_teams.fewest_tackles(season), @teams.team_data).team_name
   end
 
   def games_by_season(season)
@@ -84,15 +88,15 @@ class StatTracker
   end
 
   def worst_offense
-    @game_teams.worst_offense
+    return_team(@game_teams.worst_offense, @teams.team_data).team_name
   end
 
   def highest_scoring_home_team
-    @game_teams.highest_scoring_home_team
+    return_team(@game_teams.highest_scoring_home_team, @teams.team_data).team_name
   end
 
   def lowest_scoring_home_team
-    @game_teams.lowest_scoring_home_team
+    return_team(@game_teams.lowest_scoring_home_team, @teams.team_data).team_name
   end
 
   def team_info(team_id_str)
@@ -100,9 +104,9 @@ class StatTracker
   end
 
   def worst_season(team_id_str)
-    year = @game_teams.worst_season(team_id_str.to_i)
+    year = @game_teams.worst_season(team_id_str)
     #add back in the 2nd year of season
-    year + (year.to_i + 1).to_s
+    year.to_s + (year.to_i + 1).to_s
   end
 
   def most_goals_scored(team_id_str)
@@ -110,30 +114,30 @@ class StatTracker
   end
 
   def favorite_opponent(team_id_str)
-    #sends array [game_id,result]
-    games = @game_teams.find_team_games(team_id_str).map{|game|[game.game_id,game.result]}
-    @games.favorite_opponent(games)
+    games = find_team_games(team_id_str).map{|game|[game.game_id,game.result]}
+    # require "pry"; binding.pry
+    return_team(@games.favorite_opponent([games, team_id_str]), @teams.team_data).team_name
   end
-
+  
   def game_by_season(season)
     @game_teams.game_by_season(season)
   end
 
   def best_offense
-    @game_teams.best_offense
+    return_team(@game_teams.best_offense, @teams.team_data).team_name
   end
 
   def highest_scoring_visitor
-    @game_teams.highest_scoring_visitor
+    return_team(@game_teams.highest_scoring_visitor, @teams.team_data).team_name
   end
 
   def lowest_scoring_visitor
-    @game_teams.lowest_scoring_visitor
+    return_team(@game_teams.lowest_scoring_visitor, @teams.team_data).team_name
   end
 
   def best_season(team_id_str)
     year = @game_teams.best_season(team_id_str.to_i)
-    year + (year.to_i + 1).to_s
+
   end
 
   def fewest_goals_scored(team_id_str)
@@ -141,8 +145,13 @@ class StatTracker
   end
 
   def rival(team_id_str)
-    games = @game_teams.find_team_games(team_id_str).map{|game|[game.game_id,game.result]}
-    @games.rival(games)
+    games = find_team_games(team_id_str).map{|game|[game.game_id,game.result]}
+    # require "pry"; binding.pry
+    return_team(@games.rival([games, team_id_str]), @teams.team_data).team_name
+  end
+
+  def find_team_games(team_id_str)
+    @game_teams.game_team_data.find_all{|game| game.team_id == team_id_str.to_i}
   end
 
   def average_win_percentage(team_id)
